@@ -19,13 +19,12 @@ export async function GET(request: NextRequest) {
 
     //ambil profil dari tabel tutors
     const {
-      data: { courseTutor },
+      data: courseTutor,
       error: getCourseError,
     } = await supabase
       .from("services") // dari tabel "tutors"
       .select("*") // ambil semua kolom (full_name, whatsapp_number, dll)
-      .eq("id", user.id) //dimana 'id' cocok dengan id user yang sedang login
-      .single(); // kita mengharapkan hanya satu hasil
+      .eq("tutor_id", user.id) //dimana 'id' cocok dengan id user yang sedang login
 
     if (getCourseError) {
       // Ini bisa terjadi jika ada error DB atau

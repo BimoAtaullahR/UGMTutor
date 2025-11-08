@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
         newCourse,
-        {status: 200}
+        {status: 201}
     )
   } catch (e) {
     console.error("Unexpected POST /api/courses error:", e);
@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
         query = query.ilike('subject_name', `%${searchQuery}%`);
     }
     if(categoryQuery){
-        query = query.eq('category', `%${categoryQuery}%`);
+        query = query.eq('category', categoryQuery);
     }
 
     const {data: courses, error} = await query;
