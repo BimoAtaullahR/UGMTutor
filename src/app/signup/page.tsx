@@ -21,7 +21,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 
-export default function LoginPage() {
+export default function SignUpPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +33,7 @@ export default function LoginPage() {
     setError(null);
     setIsLoading(true);
     try {
-      const res = await fetch("/api/auth/login", {
+      const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -45,11 +45,11 @@ export default function LoginPage() {
       if (!res.ok) {
         // 3. Jika status bukan 2xx, ambil pesan error dari backend
         // dan simpan ke state 'error'
-        throw new Error(data.error || "Terjadi kesalahan saat login.");
+        throw new Error(data.error || "Terjadi kesalahan saat signup.");
       }
 
       // Jika sukses, arahkan ke dashboard
-      router.push("/");
+      router.push("/dashboard");
       router.refresh(); // Opsional: untuk memastikan data session terbarui
     } catch (err: any) {
       setError(err.message);
@@ -71,13 +71,13 @@ export default function LoginPage() {
           <div className="p-8">
             {" "}
             {/* Tambah padding agar tidak mepet */}
-            <CardHeader>
-              <CardTitle className="text-2xl font-bold mb-4">
-                Login untuk Tutor
+            <CardHeader  className="mb-4">
+              <CardTitle className="text-2xl font-bold">
+                Daftar menjadi Tutor
               </CardTitle>
-              {/* <CardDescription>
-                Login to your GAMAJAR account
-              </CardDescription> */}
+              <CardDescription>
+                Gunakan akun UGM (@mail.ugm.ac.id)
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="grid gap-4">
@@ -120,15 +120,15 @@ export default function LoginPage() {
                 )}
 
                 <Button type="submit" className="w-full">
-                  {isLoading ? 'Logging in...' : 'Login'}
+                  {isLoading ? 'Mendaftar...' : 'Daftar'}
                 </Button>
               </form>
-            </CardContent>
-            <CardFooter>
+            </CardContent>  
+           <CardFooter>
               <div className="text-sm text-center w-full mt-4">
-                Belum mendaftar menjadi tutor?{" "}
-                <Link href="/signup" className="underline">
-                  Daftar
+                Sudah mendaftar menjadi tutor?{" "}
+                <Link href="/login" className="underline">
+                  Login
                 </Link>
               </div>
             </CardFooter>

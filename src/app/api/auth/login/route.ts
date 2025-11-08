@@ -21,13 +21,13 @@ export async function POST(request: Request) {
       password: password,
     });
     if (error) {
-      console.error("Supabase signup error:", error.message);
-      NextResponse.json(
+      console.error("Supabase login error:", error.message);
+      return NextResponse.json(
         {error: "Kombinasi email dan password salah."},
         {status: 401} //401: unauthorized
       )
     }
-    NextResponse.json(
+    return NextResponse.json(
       {message: "Login berhasil!", user: data.user, session: data.session},
       {status: 200}
     )

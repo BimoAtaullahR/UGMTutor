@@ -15,6 +15,16 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!email.toLowerCase().endsWith("ugm.ac.id")) {
+      return NextResponse.json(
+        {
+          error:
+            "Pendaftaran gagal. Anda harus menggunakan email UGM (ugm.ac.id).",
+        },
+        { status: 400 } // Bad Request
+      );
+    }
+
     const supabase = await createClient();
 
     const { data, error } = await supabase.auth.signUp({
@@ -23,15 +33,6 @@ export async function POST(request: Request) {
     });
     if (error) {
       console.error("Supabase signup error:", error.message);
-      if (error.message.includes("Email must end with @ugm.ac.id")) {
-        return NextResponse.json(
-          {
-            error:
-              "Pendaftaran gagal. Anda harus menggunakan email UGM (@ugm.ac.id).",
-          },
-          { status: 400 }
-        );
-      }
       if (error.message.includes("User already registered")) {
         return NextResponse.json(
           { error: "Email ini sudah terdaftar. Silakan login." },
