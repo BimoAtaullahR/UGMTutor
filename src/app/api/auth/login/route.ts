@@ -1,7 +1,7 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   // 1. Ambil data yang dikirim oleh frontend (payload)
   //    Contoh: { email: "...", password: "..." }
   try {

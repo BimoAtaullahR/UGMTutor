@@ -138,13 +138,16 @@ export default function SignUpPage() {
           {/* 'hidden md:flex' -> disembunyikan di mobile, 
                ditampilkan (sebagai flex) di desktop */}
           <div className="hidden md:flex items-center justify-center p-8 bg-gray-50 rounded-r-lg">
+            <Link href='/'>
             <Image
               src="/logo-gamajar.svg" // <-- Ambil dari /public
               alt="GAMAJAR Logo"
               width={300} // Atur ukuran logo
               height={300}
               objectFit="contain" // Pastikan logo tidak gepeng/stretch
+              
             />
+            </Link>
           </div>
         </div>
       </Card>

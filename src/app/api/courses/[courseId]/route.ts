@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 
 export async function PUT(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { courseId: string } }
 ) {
   const supabase = await createClient();
@@ -61,7 +61,7 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { courseId: string } }
 ) {
   const supabase = await createClient();
@@ -109,7 +109,7 @@ export async function DELETE(
 }
 
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { courseId: string } }
 ) {
   const supabase = await createClient();

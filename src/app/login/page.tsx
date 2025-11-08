@@ -54,7 +54,7 @@ export default function LoginPage() {
     } catch (err: any) {
       setError(err.message);
     } finally {
-        setIsLoading(false); // Selesai loading
+      setIsLoading(false); // Selesai loading
     }
   };
 
@@ -84,9 +84,7 @@ export default function LoginPage() {
                 {error && (
                   <Alert variant="destructive">
                     <ExclamationTriangleIcon className="h-4 w-4" />
-                    <AlertDescription>
-                      {error}
-                    </AlertDescription>
+                    <AlertDescription>{error}</AlertDescription>
                   </Alert>
                 )}
                 <div className="grid gap-2">
@@ -120,7 +118,7 @@ export default function LoginPage() {
                 )}
 
                 <Button type="submit" className="w-full">
-                  {isLoading ? 'Logging in...' : 'Login'}
+                  {isLoading ? "Logging in..." : "Login"}
                 </Button>
               </form>
             </CardContent>
@@ -138,13 +136,15 @@ export default function LoginPage() {
           {/* 'hidden md:flex' -> disembunyikan di mobile, 
                ditampilkan (sebagai flex) di desktop */}
           <div className="hidden md:flex items-center justify-center p-8 bg-gray-50 rounded-r-lg">
-            <Image
-              src="/logo-gamajar.svg" // <-- Ambil dari /public
-              alt="GAMAJAR Logo"
-              width={300} // Atur ukuran logo
-              height={300}
-              objectFit="contain" // Pastikan logo tidak gepeng/stretch
-            />
+            <Link href="/">
+              <Image
+                src="/logo-gamajar.svg" // <-- Ambil dari /public
+                alt="GAMAJAR Logo"
+                width={300} // Atur ukuran logo
+                height={300}
+                objectFit="contain" // Pastikan logo tidak gepeng/stretch
+              />
+            </Link>
           </div>
         </div>
       </Card>

@@ -1,10 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 // import client helper (untuk mendapatkan user)
 import { createClient } from "@/utils/supabase/server";
 // import 'createClient' ASLI dari library inti (untuk admin)
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 
-export async function DELETE(request: Request) {
+export async function DELETE(request: NextRequest) {
   try {
     const supabase = await createClient();
     const {
@@ -58,7 +58,7 @@ export async function DELETE(request: Request) {
   }
 }
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   const supabase = await createClient();
   try {
     //Dapatkan data user yang sedang login
@@ -103,7 +103,7 @@ export async function GET(request: Request) {
   }
 }
 
-export async function PUT(request: Request) {
+export async function PUT(request: NextRequest) {
   const supabase = await createClient();
   try {
     //Dapatkan data user yang sedang login
