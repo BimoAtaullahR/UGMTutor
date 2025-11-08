@@ -1,13 +1,14 @@
 import { NextResponse, NextRequest } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 
+// --- FUNGSI PUT (Update) ---
 export async function PUT(
   request: NextRequest,
-  context: { params: { courseId: string } }
+  // PERBAIKAN #1: 'params' adalah sebuah 'Promise'
+  context: { params: Promise<{ courseId: string }> }
 ) {
   const supabase = await createClient();
   try {
-    //Dapatkan data user yang sedang login
     const {
       data: { user },
       error: authError,
@@ -22,11 +23,13 @@ export async function PUT(
 
     const body = await request.json();
     const { subject_name, price, description, location, category } = body;
-    const courseId = context.params.courseId;
+    
+    // PERBAIKAN #2: 'await' params-nya di sini
+    const params = await context.params;
+    const courseId = params.courseId;
 
-    //ambil profil dari tabel tutors
     const { data: updatedCourse, error: updateError } = await supabase
-      .from("services") // dari tabel "services"
+      .from("services")
       .update({
         subject_name: subject_name,
         price: price,
@@ -35,24 +38,22 @@ export async function PUT(
         category: category,
       })
       .eq("id", courseId)
-      .eq("tutor_id", user.id) //dimana 'id' cocok dengan id user yang sedang login
-      .single(); // kita mengharapkan hanya satu hasil
+      .eq("tutor_id", user.id)
+      .select()
+      .single();
 
     if (updateError) {
-      // Ini bisa terjadi jika ada error DB atau
-      // user sudah terdaftar di 'auth' tapi belum buat profil di 'tutors'
       console.error("update error:", updateError.message);
       return NextResponse.json(
         { error: "Gagal mengupdate course" },
         { status: 500 }
       );
     }
-    return NextResponse.json(
-      { message: "Course berhasil diupdate!" },
-      { status: 200 }
-    );
+    
+    return NextResponse.json(updatedCourse, { status: 200 });
+
   } catch (e) {
-    console.error("Unexpected PUT /api/courses/[coursesId] error:", e);
+    console.error("Unexpected PUT error:", e);
     return NextResponse.json(
       { error: "Terjadi kesalahan internal pada server." },
       { status: 500 }
@@ -60,13 +61,14 @@ export async function PUT(
   }
 }
 
+// --- FUNGSI DELETE ---
 export async function DELETE(
   request: NextRequest,
-  context : { params: { courseId: string } }
+  // PERBAIKAN #1: 'params' adalah sebuah 'Promise'
+  context: { params: Promise<{ courseId: string }> }
 ) {
   const supabase = await createClient();
   try {
-    //Dapatkan data user yang sedang login
     const {
       data: { user },
       error: authError,
@@ -79,14 +81,15 @@ export async function DELETE(
       );
     }
 
-    const courseId = context.params.courseId;
+    // PERBAIKAN #2: 'await' params-nya di sini
+    const params = await context.params;
+    const courseId = params.courseId;
 
-    //ambil profil dari tabel tutors
     const { error: deleteError } = await supabase
-      .from("services") // dari tabel "services"
+      .from("services")
       .delete()
       .eq("id", courseId)
-      .eq("tutor_id", user.id); //dimana 'id' cocok dengan id user yang sedang login
+      .eq("tutor_id", user.id);
 
     if (deleteError) {
       console.error("delete error:", deleteError.message);
@@ -100,7 +103,7 @@ export async function DELETE(
       { status: 200 }
     );
   } catch (e) {
-    console.error("Unexpected DELETE /api/courses/[coursesId] error:", e);
+    console.error("Unexpected DELETE error:", e);
     return NextResponse.json(
       { error: "Terjadi kesalahan internal pada server." },
       { status: 500 }
@@ -108,13 +111,18 @@ export async function DELETE(
   }
 }
 
+// --- FUNGSI GET (Read) ---
 export async function GET(
   request: NextRequest,
-  context: { params: { courseId: string } }
+  // PERBAIKAN #1: 'params' adalah sebuah 'Promise'
+  context: { params: Promise<{ courseId: string }> }
 ) {
   const supabase = await createClient();
   try {
-    const courseId = context.params.courseId;
+    // PERBAIKAN #2: 'await' params-nya di sini
+    const params = await context.params;
+    const courseId = params.courseId;
+    
     const { data: courseData, error: dataError } = await supabase
       .from("services")
       .select("*, tutors(full_name, profile_picture_url, major)")
@@ -131,7 +139,7 @@ export async function GET(
 
     return NextResponse.json(courseData, { status: 200 });
   } catch (e) {
-    console.error("Unexpected GET /api/courses/[coursesId] error:", e);
+    console.error("Unexpected GET error:", e);
     return NextResponse.json(
       { error: "Terjadi kesalahan internal pada server." },
       { status: 500 }

@@ -3,11 +3,12 @@ import { NextResponse, NextRequest } from "next/server";
 
 export async function GET(
   request: NextRequest,
-  context: { params: { tutorId: string } }
+  context: { params: Promise<{ tutorId: string }> }
 ) {
   const supabase = await createClient();
   try {
-    const tutorId = context.params.tutorId;
+    const params = await context.params
+    const tutorId = params.tutorId;
     const { data: profileTutor, error: profileError } = await supabase
       .from("tutors")
       .select("*, services(*)")
