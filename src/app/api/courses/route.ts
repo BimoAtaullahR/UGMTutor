@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
       );
     }
     const body = await request.json();
-    const { subject_name, price, description, location, category } = body;
+    const { subject_name, price, description, location, category, cover_image_url } = body;
 
     if (!subject_name || !price) {
       return NextResponse.json(
@@ -32,6 +32,8 @@ export async function POST(request: NextRequest) {
         description: description,
         location: location,
         category: category,
+        cover_image_url: cover_image_url,
+        tutor_id: user.id
       })
       .select()
       .single();
