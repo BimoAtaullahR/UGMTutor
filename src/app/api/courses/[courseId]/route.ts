@@ -3,7 +3,7 @@ import { createClient } from "@/utils/supabase/server";
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { courseId: string } }
+  context: { params: { courseId: string } }
 ) {
   const supabase = await createClient();
   try {
@@ -22,7 +22,7 @@ export async function PUT(
 
     const body = await request.json();
     const { subject_name, price, description, location, category } = body;
-    const courseId = params.courseId;
+    const courseId = context.params.courseId;
 
     //ambil profil dari tabel tutors
     const { data: updatedCourse, error: updateError } = await supabase
@@ -62,7 +62,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { courseId: string } }
+  context : { params: { courseId: string } }
 ) {
   const supabase = await createClient();
   try {
@@ -79,7 +79,7 @@ export async function DELETE(
       );
     }
 
-    const courseId = params.courseId;
+    const courseId = context.params.courseId;
 
     //ambil profil dari tabel tutors
     const { error: deleteError } = await supabase
@@ -110,11 +110,11 @@ export async function DELETE(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { courseId: string } }
+  context: { params: { courseId: string } }
 ) {
   const supabase = await createClient();
   try {
-    const courseId = params.courseId;
+    const courseId = context.params.courseId;
     const { data: courseData, error: dataError } = await supabase
       .from("services")
       .select("*, tutors(full_name, profile_picture_url, major)")
