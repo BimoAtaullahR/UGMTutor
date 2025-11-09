@@ -7,7 +7,7 @@ import { createClient } from "@/utils/supabase/server";
 export async function PUT(
   request: NextRequest,
   // PERBAIKAN #1: 'params' adalah sebuah 'Promise'
-  context: { params: Promise<{ courseId: string }> }
+  context: { params: { courseId: string } }
 ) {
   const supabase = await createClient();
   try {
@@ -26,9 +26,7 @@ export async function PUT(
     const body = await request.json();
     const { subject_name, price, description, location, category, cover_image_url } = body;
     
-    // PERBAIKAN #2: 'await' params-nya di sini
-    const params = await context.params;
-    const courseId = params.courseId;
+    const courseId = context.params.courseId;
 
     const { data: updatedCourse, error: updateError } = await supabase
       .from("services")
@@ -68,7 +66,7 @@ export async function PUT(
 export async function DELETE(
   request: NextRequest,
   // PERBAIKAN #1: 'params' adalah sebuah 'Promise'
-  context: { params: Promise<{ courseId: string }> }
+  context: { params: { courseId: string } }
 ) {
   const supabase = await createClient();
   try {
@@ -84,9 +82,7 @@ export async function DELETE(
       );
     }
 
-    // PERBAIKAN #2: 'await' params-nya di sini
-    const params = await context.params;
-    const courseId = params.courseId;
+    const courseId = context.params.courseId;
 
     const { error: deleteError } = await supabase
       .from("services")
@@ -118,13 +114,11 @@ export async function DELETE(
 export async function GET(
   request: NextRequest,
   // PERBAIKAN #1: 'params' adalah sebuah 'Promise'
-  context: { params: Promise<{ courseId: string }> }
+  context: { params: { courseId: string } }
 ) {
   const supabase = await createClient();
   try {
-    // PERBAIKAN #2: 'await' params-nya di sini
-    const params = await context.params;
-    const courseId = params.courseId;
+    const courseId = context.params.courseId;
     
     const { data: courseData, error: dataError } = await supabase
       .from("services")
