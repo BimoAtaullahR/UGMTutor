@@ -33,7 +33,7 @@ type CourseDetail = {
 
 // --- (B) FUNGSI AMBIL DATA ---
 // Fungsi Server Component untuk mengambil data course tunggal
-async function getCourseDetails(courseId: string): Promise<CourseDetail | null> {
+async function getCourseDetails(courseId: number): Promise<CourseDetail | null> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("services")
@@ -49,7 +49,7 @@ async function getCourseDetails(courseId: string): Promise<CourseDetail | null> 
 }
 
 // --- (C) KOMPONEN HALAMAN UTAMA ---
-export default async function CourseDetailPage({ params }: { params: { courseId: string } }) {
+export default async function CourseDetailPage({ params }: { params: { courseId: number } }) {
   
   const course = await getCourseDetails(params.courseId);
 
