@@ -16,7 +16,7 @@ import { ChevronLeft, BookOpen, MapPin, MessageCircle } from 'lucide-react';
 // --- (A) TIPE DATA ---
 // Tipe ini spesifik untuk halaman detail, mengambil data tutor (objek tunggal)
 type CourseDetail = {
-  id: string;
+  id: number;
   subject_name: string;
   description: string;
   price: number;
