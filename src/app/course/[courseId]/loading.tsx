@@ -52,7 +52,7 @@ export default function LoadingCourseDetail() {
                 <div className="pb-4 mb-4 border-b border-gray-300">
                   <div className="h-6 bg-gray-200 rounded w-3/4 animate-pulse" />
                 </div>
-                <div className_="my-6">
+                <div className="my-6">
                   <div className="h-10 bg-gray-200 rounded w-1/2 animate-pulse" />
                 </div>
                 <div className="h-12 w-full bg-gray-200 rounded-xl animate-pulse" />
