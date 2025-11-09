@@ -148,7 +148,7 @@ const CoursesOffered = ({ courses }: { courses: Service[] }) => {
       <h2 className="text-3xl font-bold text-gray-800 mb-6">Courses Offered</h2>
       {courses && courses.length > 0 ? (
         <div className="flex flex-col gap-8">
-          {courses.map((course) => (
+          {courses.filter(course => course && course.id).map((course) => (
             <CourseCard key={course.id} course={course} />
           ))}
         </div>
