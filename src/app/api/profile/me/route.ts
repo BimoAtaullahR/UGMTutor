@@ -120,7 +120,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const {whatsapp_number, full_name, major, profile_picture_url} = body;
+    const {whatsapp_number, full_name, major, profile_picture_url, bio} = body;
 
 
     //ambil profil dari tabel tutors
@@ -129,11 +129,12 @@ export async function PUT(request: NextRequest) {
       error: updateError,
     } = await supabase
       .from("tutors") // dari tabel "tutors"
-      .update({
+      .upsert({
         full_name : full_name,
         whatsapp_number: whatsapp_number,
         major: major,
         profile_picture_url: profile_picture_url,
+        bio: bio,
       }) // ambil semua kolom (full_name, whatsapp_number, dll)
       .eq("id", user.id) //dimana 'id' cocok dengan id user yang sedang login
       .select()

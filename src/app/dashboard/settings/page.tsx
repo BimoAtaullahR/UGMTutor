@@ -20,7 +20,7 @@ type Profile = {
   major: string | null;
   whatsapp_number: string | null;
   profile_picture_url: string | null;
-  about_me: string | null; // Tambahan untuk 'About Me'
+  bio: string | null; // Tambahan untuk 'About Me'
 };
 
 export default function SettingsPage() {
@@ -33,7 +33,7 @@ export default function SettingsPage() {
     major: '',
     whatsapp_number: '',
     profile_picture_url: null,
-    about_me: ''
+    bio: ''
   });
   const [profilePicFile, setProfilePicFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -48,7 +48,9 @@ export default function SettingsPage() {
       const res = await fetch('/api/profile/me'); //
       if (res.ok) {
         const data = await res.json();
-        setProfile(data);
+        if (data) {
+          setProfile(data);
+        }
       } else {
         setError('Gagal memuat profil.');
       }
@@ -109,7 +111,7 @@ export default function SettingsPage() {
           major: profile.major,
           whatsapp_number: profile.whatsapp_number,
           profile_picture_url: profilePicUrl,
-          // 'about_me' belum didukung API PUT Anda, tapi bisa ditambahkan
+          bio: profile.bio,
         }),
       });
 
@@ -212,12 +214,12 @@ export default function SettingsPage() {
             />
           </div>
            <div>
-            <Label htmlFor="about_me">About Me</Label>
+            <Label htmlFor="about_me">About Me (Bio)</Label>
             <Textarea 
-              id="about_me" 
-              name="about_me" 
+              id="bio" 
+              name="bio" 
               placeholder="Write a short bio..." 
-              value={profile?.about_me || ''} 
+              value={profile?.bio || ''} 
               onChange={handleChange}
               rows={4}
             />
