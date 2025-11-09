@@ -118,13 +118,24 @@ export async function DELETE(
 export async function GET(
   request: NextRequest,
   // PERBAIKAN #1: 'params' adalah sebuah 'Promise'
-  context: { params: Promise<{ courseId: number }> }
+  context: { params: Promise<{ courseId: string }> }
 ) {
   const supabase = await createClient();
   try {
     // PERBAIKAN #2: 'await' params-nya di sini
     const params = await context.params;
-    const courseId = params.courseId;
+    const courseIdString = params.courseId; // Ini adalah string, misal: "19"
+
+    // PERBAIKAN #2: Konversi (parse) string ke number
+    const courseId = parseInt(courseIdString, 10);
+
+    // PERBAIKAN #3: Tambahkan validasi jika parsing gagal (misal: URL-nya /course/abc)
+    if (isNaN(courseId)) {
+      return NextResponse.json(
+        { error: "Course ID tidak valid." },
+        { status: 400 } // 400 = Bad Request
+      );
+    }
     
     const { data: courseData, error: dataError } = await supabase
       .from("services")

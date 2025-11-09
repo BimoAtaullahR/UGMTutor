@@ -49,9 +49,10 @@ async function getCourseDetails(courseId: number): Promise<CourseDetail | null> 
 }
 
 // --- (C) KOMPONEN HALAMAN UTAMA ---
-export default async function CourseDetailPage({ params }: { params: { courseId: number } }) {
-  
-  const course = await getCourseDetails(params.courseId);
+export default async function CourseDetailPage(context: { params: Promise<{ courseId: string }> }) {
+  const params = await context.params;
+  const courseId = params.courseId;
+  const course = await getCourseDetails(parseInt(courseId, 10));
 
   if (!course) {
      notFound();
