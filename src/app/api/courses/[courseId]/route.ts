@@ -7,7 +7,7 @@ import { createClient } from "@/utils/supabase/server";
 export async function PUT(
   request: NextRequest,
   // PERBAIKAN #1: 'params' adalah sebuah 'Promise'
-  context: { params: Promise<{ courseId: string }> }
+  context: { params: Promise<{ courseId: number }> }
 ) {
   const supabase = await createClient();
   try {
@@ -68,7 +68,7 @@ export async function PUT(
 export async function DELETE(
   request: NextRequest,
   // PERBAIKAN #1: 'params' adalah sebuah 'Promise'
-  context: { params: Promise<{ courseId: string }> }
+  context: { params: Promise<{ courseId: number }> }
 ) {
   const supabase = await createClient();
   try {
@@ -118,7 +118,7 @@ export async function DELETE(
 export async function GET(
   request: NextRequest,
   // PERBAIKAN #1: 'params' adalah sebuah 'Promise'
-  context: { params: Promise<{ courseId: string }> }
+  context: { params: Promise<{ courseId: number }> }
 ) {
   const supabase = await createClient();
   try {
