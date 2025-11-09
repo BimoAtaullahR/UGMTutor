@@ -223,9 +223,9 @@ export default function SettingsPage() {
               onChange={handleChange}
               rows={4}
             />
-            <p className="text-xs text-gray-500 mt-1">
+            {/* <p className="text-xs text-gray-500 mt-1">
               Catatan: 'About Me' belum terhubung ke API simpan.
-            </p>
+            </p> */}
           </div>
           
           <div className="flex justify-end pt-4">
