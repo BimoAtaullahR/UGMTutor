@@ -28,7 +28,13 @@ export default function SettingsPage() {
   const supabase = createClient();
   
   // State untuk form
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [profile, setProfile] = useState<Profile>({
+    full_name: '',
+    major: '',
+    whatsapp_number: '',
+    profile_picture_url: null,
+    about_me: ''
+  });
   const [profilePicFile, setProfilePicFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -54,7 +60,7 @@ export default function SettingsPage() {
   // 2. Handle perubahan input form
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setProfile(prev => (prev ? { ...prev, [name]: value } : null));
+    setProfile(prev => ({ ...prev, [name]: value }));
   };
 
   // 3. Handle perubahan file
