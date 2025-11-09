@@ -1,10 +1,12 @@
+// GANTI SELURUH ISI FILE 'app/api/courses/me/route.ts' DENGAN INI
+
 import { NextResponse, NextRequest } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
   try {
-    //Dapatkan data user yang sedang login
+    // 1. Dapatkan user (Ini sudah benar)
     const {
       data: { user },
       error: authError,
@@ -17,25 +19,30 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    //ambil profil dari tabel tutors
+    // --- INI PERBAIKANNYA ---
+    
+    // 2. Ambil 'data' sebagai 'courseTutor' (atau 'courses')
     const {
-      data: courseTutor,
+      data: courseTutor, // <-- Ini HANYA me-rename 'data'
       error: getCourseError,
     } = await supabase
-      .from("services") // dari tabel "tutors"
-      .select("*") // ambil semua kolom (full_name, whatsapp_number, dll)
-      .eq("tutor_id", user.id) //dimana 'id' cocok dengan id user yang sedang login
+      .from("services") 
+      .select("*") 
+      // 3. Cocokkan dengan 'tutor_id' (bukan 'id')
+      .eq("tutor_id", user.id); // <-- Ini BENAR
+      // 4. Hapus '.single()' untuk mendapatkan SEMUA course
 
     if (getCourseError) {
-      // Ini bisa terjadi jika ada error DB atau
-      // user sudah terdaftar di 'auth' tapi belum buat profil di 'tutors'
       console.error("error when getting courses:", getCourseError.message);
       return NextResponse.json(
         { error: "Gagal mengambil courses tutor" },
         { status: 500 }
       );
     }
+    
+    // 5. Kembalikan 'courseTutor' (yang sekarang berisi array course)
     return NextResponse.json(courseTutor, { status: 200 });
+
   } catch (e) {
     console.error("Unexpected GET /api/courses/me error:", e);
     return NextResponse.json(

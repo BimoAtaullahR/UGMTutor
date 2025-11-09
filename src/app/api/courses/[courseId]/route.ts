@@ -1,3 +1,5 @@
+// Lokasi: src/app/api/courses/[courseId]/route.ts
+
 import { NextResponse, NextRequest } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 
@@ -22,7 +24,7 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { subject_name, price, description, location, category } = body;
+    const { subject_name, price, description, location, category, cover_image_url } = body;
     
     // PERBAIKAN #2: 'await' params-nya di sini
     const params = await context.params;
@@ -36,6 +38,7 @@ export async function PUT(
         description: description,
         location: location,
         category: category,
+        cover_image_url: cover_image_url
       })
       .eq("id", courseId)
       .eq("tutor_id", user.id)
