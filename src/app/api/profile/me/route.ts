@@ -76,11 +76,11 @@ export async function GET(request: NextRequest) {
 
     //ambil profil dari tabel tutors
     const {
-      data: { tutorProfile },
+      data: tutorProfile,
       error: profileError,
     } = await supabase
       .from("tutors") // dari tabel "tutors"
-      .select("*") // ambil semua kolom (full_name, whatsapp_number, dll)
+      .select("id::text, full_name, major, whatsapp_number, profile_picture_url, bio")
       .eq("id", user.id) //dimana 'id' cocok dengan id user yang sedang login
       .single(); // kita mengharapkan hanya satu hasil
 
@@ -137,7 +137,7 @@ export async function PUT(request: NextRequest) {
         bio: bio,
       }) // ambil semua kolom (full_name, whatsapp_number, dll)
       .eq("id", user.id) //dimana 'id' cocok dengan id user yang sedang login
-      .select()
+      .select("id::text, full_name, major, whatsapp_number, profile_picture_url, bio")
       .single(); // kita mengharapkan hanya satu hasil
 
     if (updateError) {
