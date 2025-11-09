@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { createClient } from '@/utils/supabase/server';
 import { Search, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
-
+import CourseCard from '@/components/CourseCard';
 // Impor komponen UI shadcn Anda
 import { Card, CardContent, CardFooter, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -13,18 +13,18 @@ import { Button } from '@/components/ui/button';
 // --- (A) TIPE DATA ---
 // Tipe data ini kita buat berdasarkan query Supabase
 // PERBAIKAN: 'tutors' adalah sebuah array '[]' (berdasarkan error Anda sebelumnya)
-type Course = {
-  id: string;
-  subject_name: string;
-  description: string;
-  price: number;
-  cover_image_url?: string | null;
-  tutors: { // Data hasil JOIN
-    id: string; 
-    full_name: string;
-    profile_picture_url?: string | null;
-  }[] | null; // <-- Diperbaiki menjadi array
-};
+// type Course = {
+//   id: string;
+//   subject_name: string;
+//   description: string;
+//   price: number;
+//   cover_image_url?: string | null;
+//   tutors: { // Data hasil JOIN
+//     id: string; 
+//     full_name: string;
+//     profile_picture_url?: string | null;
+//   }[] | null; // <-- Diperbaiki menjadi array
+// };
 
 // --- (B) KOMPONEN-KOMPONEN HALAMAN ---
 // (Semua komponen dari 'home.jsx' Anda, di-refactor untuk Next.js)
@@ -198,63 +198,63 @@ const CategorySearch = ({ activeCategory }: { activeCategory?: string }) => {
  * --- 4. Card Course ---
  * Komponen baru untuk menampilkan data course dari database
  */
-const CourseCard = ({ course }: { course: Course }) => {
-  // PERBAIKAN: 'tutors' adalah array, ambil item pertama
-  const tutor = (course.tutors && course.tutors.length > 0) ? course.tutors[0] : null;
+// const CourseCard = ({ course }: { course: Course }) => {
+//   // PERBAIKAN: 'tutors' adalah array, ambil item pertama
+//   const tutor = (course.tutors && course.tutors.length > 0) ? course.tutors[0] : null;
 
-  const tutorName = tutor?.full_name || 'Tutor';
-  // Format harga
-  const priceFormat = new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-  }).format(course.price);
+//   const tutorName = tutor?.full_name || 'Tutor';
+//   // Format harga
+//   const priceFormat = new Intl.NumberFormat('id-ID', {
+//     style: 'currency',
+//     currency: 'IDR',
+//     minimumFractionDigits: 0,
+//   }).format(course.price);
 
-  return (
-    <Link href={`/course/${course.id}`} className="block group">
-      <Card className="bg-white rounded-2xl shadow-xl overflow-hidden h-full flex flex-col transition-shadow hover:shadow-2xl">
-        <div className="relative h-64 w-full">
-          <Image
-            src={course.cover_image_url || '/abstract.jpg'}
-            alt={course.subject_name}
-            fill
-            className="object-cover"
-            onError={(e) => {
-              e.currentTarget.src = 'https://placehold.co/600x400/e2e8f0/1e293b?text=Course';
-            }}
-          />
-        </div>
-        <CardContent className="p-6 flex-grow">
-          <CardTitle className="text-xl font-bold text-gray-900 group-hover:text-blue-700">
-            {course.subject_name}
-          </CardTitle>
-          <p className="text-sm text-gray-700 mt-2 line-clamp-2">
-            {course.description}
-          </p>
-        </CardContent>
-        <CardFooter className="p-6 pt-0 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <Image
-              src={tutor?.profile_picture_url || '/profpic.svg'}
-              alt={tutorName}
-              width={24}
-              height={24}
-              className="h-6 w-6 rounded-full bg-gray-200"
-            />
-            <span className="text-sm text-gray-700">{tutorName}</span>
-          </div>
-          <span className="text-lg font-bold text-gray-900">{priceFormat}</span>
-        </CardFooter>
-      </Card>
-    </Link>
-  );
-};
+//   return (
+//     <Link href={`/course/${course.id}`} className="block group">
+//       <Card className="bg-white rounded-2xl shadow-xl overflow-hidden h-full flex flex-col transition-shadow hover:shadow-2xl">
+//         <div className="relative h-64 w-full">
+//           <Image
+//             src={course.cover_image_url || '/abstract.jpg'}
+//             alt={course.subject_name}
+//             fill
+//             className="object-cover"
+//             onError={(e) => {
+//               e.currentTarget.src = 'https://placehold.co/600x400/e2e8f0/1e293b?text=Course';
+//             }}
+//           />
+//         </div>
+//         <CardContent className="p-6 flex-grow">
+//           <CardTitle className="text-xl font-bold text-gray-900 group-hover:text-blue-700">
+//             {course.subject_name}
+//           </CardTitle>
+//           <p className="text-sm text-gray-700 mt-2 line-clamp-2">
+//             {course.description}
+//           </p>
+//         </CardContent>
+//         <CardFooter className="p-6 pt-0 flex justify-between items-center">
+//           <div className="flex items-center gap-2">
+//             <Image
+//               src={tutor?.profile_picture_url || '/profpic.svg'}
+//               alt={tutorName}
+//               width={24}
+//               height={24}
+//               className="h-6 w-6 rounded-full bg-gray-200"
+//             />
+//             <span className="text-sm text-gray-700">{tutorName}</span>
+//           </div>
+//           <span className="text-lg font-bold text-gray-900">{priceFormat}</span>
+//         </CardFooter>
+//       </Card>
+//     </Link>
+//   );
+// };
 
 /**
  * --- 5. Daftar Course (Menggantikan FeaturedTutorsSection) ---
  * Sekarang menampilkan data dinamis
  */
-const FeaturedCoursesSection = ({ courses }: { courses: Course[] }) => {
+const FeaturedCoursesSection = ({ courses }: { courses: any[] }) => {
   return (
     <section id="courses-section" className="bg-white pb-20">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
