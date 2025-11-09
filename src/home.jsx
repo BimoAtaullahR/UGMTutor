@@ -22,7 +22,7 @@ const LandingHeader = ({ navigate }) => {
               href="#"
               onClick={(e) => {
                 e.preventDefault();
-                navigate('mycourses');
+                navigate('explore');
               }}
               className="text-gray-200 hover:text-white font-medium"
             >
