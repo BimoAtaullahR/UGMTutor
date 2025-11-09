@@ -4,15 +4,12 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { createClient } from '@/utils/supabase/server';
 import { Search, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
-
-// Impor komponen UI shadcn Anda
 import { Card, CardContent, CardFooter, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
 // --- (A) TIPE DATA ---
 // Tipe data ini kita buat berdasarkan query Supabase
-// PERBAIKAN: 'tutors' adalah sebuah array '[]' (berdasarkan error Anda sebelumnya)
 type Course = {
   id: string;
   subject_name: string;
@@ -20,10 +17,10 @@ type Course = {
   price: number;
   cover_image_url?: string | null;
   tutors: { // Data hasil JOIN
-    id: string; 
+    id: string; // Tambahkan ID tutor untuk link ke profilnya
     full_name: string;
     profile_picture_url?: string | null;
-  }[] | null; // <-- Diperbaiki menjadi array
+  } | null;
 };
 
 // --- (B) KOMPONEN-KOMPONEN HALAMAN ---
@@ -42,7 +39,7 @@ const LandingHeader = ({ user, searchQuery }: { user: any, searchQuery?: string 
       <div className="container mx-auto max-w-7xl flex justify-between items-center gap-8">
         <div className="flex items-center gap-8">
           <Link href="/">
-            {/* Gunakan logo dari /public */}
+            {/* Gunakan logo dari /public [cite: bimoataullahr/gamajar/GamAjar-bdafa0a06c4d4aaa22a37713d6b5284988a5b49d/public/logo-gamajar.svg] */}
             <Image src="/logo-gamajar.svg" alt="Logo" width={160} height={40} className="h-10 w-auto" />
           </Link>
           <nav className="hidden md:flex gap-6">
@@ -88,7 +85,7 @@ const LandingHeader = ({ user, searchQuery }: { user: any, searchQuery?: string 
             // Jika tidak, arahkan ke login
             <Link href="/login" className="flex items-center gap-2 text-gray-200 hover:text-white font-medium">
               <Image
-                src="/profpic.svg" 
+                src="/profpic.svg" // [cite: bimoataullahr/gamajar/GamAjar-bdafa0a06c4d4aaa22a37713d6b5284988a5b49d/public/profpic.svg]
                 alt="Profile"
                 width={24}
                 height={24}
@@ -199,11 +196,7 @@ const CategorySearch = ({ activeCategory }: { activeCategory?: string }) => {
  * Komponen baru untuk menampilkan data course dari database
  */
 const CourseCard = ({ course }: { course: Course }) => {
-  // PERBAIKAN: 'tutors' adalah array, ambil item pertama
-  const tutor = (course.tutors && course.tutors.length > 0) ? course.tutors[0] : null;
-
-  const tutorName = tutor?.full_name || 'Tutor';
-  // Format harga
+  const tutorName = course.tutors?.full_name || 'Tutor';
   const priceFormat = new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
@@ -235,7 +228,7 @@ const CourseCard = ({ course }: { course: Course }) => {
         <CardFooter className="p-6 pt-0 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <Image
-              src={tutor?.profile_picture_url || '/profpic.svg'}
+              src={course.tutors?.profile_picture_url || '/profpic.svg'}
               alt={tutorName}
               width={24}
               height={24}
@@ -373,7 +366,7 @@ export default async function Homepage({
   const searchQuery = searchParams?.search;
   const categoryQuery = searchParams?.category;
 
-  // Bangun query
+  // Bangun query secara dinamis
   let query = supabase
     .from('services')
     .select(`
@@ -396,10 +389,12 @@ export default async function Homepage({
     query = query.eq('category', categoryQuery);
   }
 
+  // Eksekusi query
   const { data: courses, error } = await query;
 
   if (error) {
     console.error("Error fetching courses for homepage:", error.message);
+    // (Sebaiknya tampilkan pesan error)
   }
 
   // 3. Render halaman
@@ -408,8 +403,7 @@ export default async function Homepage({
       <LandingHeader user={user} searchQuery={searchQuery} />
       <main>
         <CategorySearch activeCategory={categoryQuery} />
-        {/* PERBAIKAN TIPE #3: Hapus 'as Course[]' */}
-        <FeaturedCoursesSection courses={courses || []} />
+        <FeaturedCoursesSection courses={courses as Course[] || []} />
         <HowItWorks />
         <CallToAction />
       </main>
