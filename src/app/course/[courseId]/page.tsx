@@ -1,413 +1,164 @@
-// Ini adalah Server Component (TIDAK ADA 'use client' di atas)
+// Lokasi: src/app/course/[courseId]/page.tsx
+
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { createClient } from '@/utils/supabase/server';
-import { Search, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
-import { Card, CardContent, CardFooter, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { notFound } from 'next/navigation';
+
+// Komponen UI
+import PublicHeader from '@/components/PublicHeader'; //
+import PublicFooter from '@/components/PublicFooter'; //
+import { Button } from '@/components/ui/button'; //
+import { Card } from '@/components/ui/card'; //
+import { ChevronLeft, BookOpen, MapPin, MessageCircle } from 'lucide-react';
 
 // --- (A) TIPE DATA ---
-// Tipe data ini kita buat berdasarkan query Supabase
-type Course = {
+// Tipe ini spesifik untuk halaman detail, mengambil data tutor (objek tunggal)
+type CourseDetail = {
   id: string;
   subject_name: string;
   description: string;
   price: number;
-  cover_image_url?: string | null;
-  tutors: { // Data hasil JOIN
-    id: string; // Tambahkan ID tutor untuk link ke profilnya
+  location: string;
+  cover_image_url: string | null;
+  tutor_id: string; 
+  tutors: {
     full_name: string;
-    profile_picture_url?: string | null;
+    profile_picture_url: string | null;
+    major: string | null;
+    whatsapp_number: string | null; // Kita ambil nomor WA
   } | null;
 };
 
-// --- (B) KOMPONEN-KOMPONEN HALAMAN ---
-// (Semua komponen dari 'home.jsx' Anda, di-refactor untuk Next.js)
+// --- (B) FUNGSI AMBIL DATA ---
+// Fungsi Server Component untuk mengambil data course tunggal
+async function getCourseDetails(courseId: string): Promise<CourseDetail | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("services")
+    .select("*, tutors(full_name, profile_picture_url, major, whatsapp_number)") // Ambil juga nomor WA
+    .eq("id", courseId)
+    .single(); // .single() mengambil satu objek, BUKAN array
+  
+  if (error) {
+    console.error("Error fetching course detail:", error.message);
+    notFound(); // Tampilkan halaman 404 jika course tidak ditemukan
+  }
+  return data;
+}
 
-/**
- * --- 1. Header (Publik) ---
- * Di-update untuk:
- * - Menggunakan <Link>
- * - Menerima 'user' sebagai prop
- * - Menggunakan <form> untuk search bar
- */
-const LandingHeader = ({ user, searchQuery }: { user: any, searchQuery?: string }) => {
-  return (
-    <header className="bg-gradient-to-r from-blue-900 to-blue-700 text-white p-4 print:hidden">
-      <div className="container mx-auto max-w-7xl flex justify-between items-center gap-8">
-        <div className="flex items-center gap-8">
-          <Link href="/">
-            {/* Gunakan logo dari /public [cite: bimoataullahr/gamajar/GamAjar-bdafa0a06c4d4aaa22a37713d6b5284988a5b49d/public/logo-gamajar.svg] */}
-            <Image src="/logo-gamajar.svg" alt="Logo" width={160} height={40} className="h-10 w-auto" />
-          </Link>
-          <nav className="hidden md:flex gap-6">
-            <Link href="/" className="text-gray-200 hover:text-white font-medium">
-              Home
-            </Link>
-            <Link href="/#courses-section" className="text-gray-200 hover:text-white font-medium">
-              Explore
-            </Link>
-          </nav>
-        </div>
+// --- (C) KOMPONEN HALAMAN UTAMA ---
+export default async function CourseDetailPage({ params }: { params: { courseId: string } }) {
+  
+  const course = await getCourseDetails(params.courseId);
 
-        {/* Form pencarian sekarang menggunakan action GET */}
-        <div className="flex-1 max-w-lg">
-          <form action="/" method="GET" className="relative">
-            <input
-              type="text"
-              name="search" // <-- Ini akan menjadi ?search=...
-              placeholder="Search Your Tutor"
-              defaultValue={searchQuery}
-              className="bg-white/20 text-white placeholder-gray-300 rounded-full py-2 px-4 pl-10 w-full focus:outline-none focus:ring-2 focus:ring-white"
-            />
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-300" />
-            <button type="submit" className="hidden" />
-          </form>
-        </div>
+  if (!course) {
+     notFound();
+  }
 
-        {/* Tombol Akun sekarang dinamis */}
-        <div className="hidden md:flex items-center gap-3">
-          {user ? (
-            // Jika user login, arahkan ke dashboard
-            <Link href="/dashboard" className="flex items-center gap-2 text-gray-200 hover:text-white font-medium">
-              <Image
-                src={user.user_metadata?.avatar_url || "/profpic.svg"}
-                alt="Profile"
-                width={24}
-                height={24}
-                className="h-6 w-6 rounded-full bg-white/30"
-              />
-              Dashboard
-            </Link>
-          ) : (
-            // Jika tidak, arahkan ke login
-            <Link href="/login" className="flex items-center gap-2 text-gray-200 hover:text-white font-medium">
-              <Image
-                src="/profpic.svg" // [cite: bimoataullahr/gamajar/GamAjar-bdafa0a06c4d4aaa22a37713d6b5284988a5b49d/public/profpic.svg]
-                alt="Profile"
-                width={24}
-                height={24}
-                className="h-6 w-6 rounded-full bg-white/30 p-1"
-              />
-              Account
-            </Link>
-          )}
-        </div>
-      </div>
-    </header>
-  );
-};
-
-/**
- * --- 2. Footer (Publik) ---
- * Di-update untuk menggunakan <Link>
- */
-const LandingFooter = () => {
-  return (
-    <footer className="bg-blue-950 text-gray-300 py-16 print:hidden">
-      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div>
-            <Image src="/logo-gamajar.svg" alt="Logo" width={160} height={40} className="h-10 w-auto" />
-            <p className="mt-4 text-sm">
-              Connecting UGM students for peer-to-peer learning and skill sharing.
-            </p>
-            <div className="flex gap-4 mt-6">
-              <a href="#" className="hover:text-white" aria-label="Facebook"><Facebook size={20} /></a>
-              <a href="#" className="hover:text-white" aria-label="Twitter"><Twitter size={20} /></a>
-              <a href="#" className="hover:text-white" aria-label="Instagram"><Instagram size={20} /></a>
-              <a href="#" className="hover:text-white" aria-label="LinkedIn"><Linkedin size={20} /></a>
-            </div>
-          </div>
-          <div>
-            <h4 className="text-lg font-semibold text-white">Quick Links</h4>
-            <ul className="mt-4 space-y-2 text-sm">
-              <li><Link href="#" className="hover:text-white">About Us</Link></li>
-              <li><Link href="/#how-it-works" className="hover:text-white">How It Works</Link></li>
-              <li><Link href="/signup" className="hover:text-white">Become a Tutor</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-lg font-semibold text-white">Support</h4>
-            <ul className="mt-4 space-y-2 text-sm">
-              <li><Link href="#" className="hover:text-white">FAQ</Link></li>
-              <li><Link href="#" className="hover:text-white">Contact Us</Link></li>
-              <li><Link href="#" className="hover:text-white">Terms of Service</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-lg font-semibold text-white">Contact</h4>
-            <ul className="mt-4 space-y-2 text-sm">
-              <li>Email: contact@gamajar.id</li>
-              <li>Address: Yogyakarta, Indonesia</li>
-            </ul>
-          </div>
-        </div>
-        <div className="border-t border-blue-900 mt-12 pt-8 text-center text-sm">
-          <p>&copy; {new Date().getFullYear()} GamAjar. All rights reserved.</p>
-        </div>
-      </div>
-    </footer>
-  );
-};
-
-/**
- * --- 3. Filter Kategori ---
- * Di-update untuk menggunakan <Link> (Server Component)
- */
-const CategorySearch = ({ activeCategory }: { activeCategory?: string }) => {
-  const categories = ['Science', 'Politics', 'Business', 'Engineering'];
-
-  return (
-    <section className="bg-white py-16">
-      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="bg-gray-200 rounded-xl p-10 text-center">
-          <h3 className="text-3xl font-bold text-gray-800">Find From Category</h3>
-          <p className="text-gray-600 mt-2">Explore the expertise you need, from science to social studies.</p>
-          <div className="flex flex-wrap justify-center gap-4 mt-8">
-            {categories.map((category) => (
-              <Button key={category} asChild
-                // Ganti 'variant' sesuai style shadcn Anda
-                variant={activeCategory === category.toLowerCase() ? 'default' : 'secondary'}
-                className="py-2 px-6 rounded-full font-medium transition duration-300"
-              >
-                {/* Link ini akan me-refresh halaman dengan query baru */}
-                <Link href={`/?category=${category.toLowerCase()}`}>
-                  {category}
-                </Link>
-              </Button>
-            ))}
-            {activeCategory && (
-              <Button variant="ghost" asChild>
-                <Link href="/">Clear Filter</Link>
-              </Button>
-            )}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-};
-
-/**
- * --- 4. Card Course ---
- * Komponen baru untuk menampilkan data course dari database
- */
-const CourseCard = ({ course }: { course: Course }) => {
-  const tutorName = course.tutors?.full_name || 'Tutor';
+  const tutor = course.tutors;
+  
+  // Format harga
   const priceFormat = new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
     minimumFractionDigits: 0,
   }).format(course.price);
 
-  return (
-    <Link href={`/course/${course.id}`} className="block group">
-      <Card className="bg-white rounded-2xl shadow-xl overflow-hidden h-full flex flex-col transition-shadow hover:shadow-2xl">
-        <div className="relative h-64 w-full">
-          <Image
-            src={course.cover_image_url || '/abstract.jpg'}
-            alt={course.subject_name}
-            fill
-            className="object-cover"
-            onError={(e) => {
-              e.currentTarget.src = 'https://placehold.co/600x400/e2e8f0/1e293b?text=Course';
-            }}
-          />
-        </div>
-        <CardContent className="p-6 flex-grow">
-          <CardTitle className="text-xl font-bold text-gray-900 group-hover:text-blue-700">
-            {course.subject_name}
-          </CardTitle>
-          <p className="text-sm text-gray-700 mt-2 line-clamp-2">
-            {course.description}
-          </p>
-        </CardContent>
-        <CardFooter className="p-6 pt-0 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <Image
-              src={course.tutors?.profile_picture_url || '/profpic.svg'}
-              alt={tutorName}
-              width={24}
-              height={24}
-              className="h-6 w-6 rounded-full bg-gray-200"
-            />
-            <span className="text-sm text-gray-700">{tutorName}</span>
-          </div>
-          <span className="text-lg font-bold text-gray-900">{priceFormat}</span>
-        </CardFooter>
-      </Card>
-    </Link>
-  );
-};
-
-/**
- * --- 5. Daftar Course (Menggantikan FeaturedTutorsSection) ---
- * Sekarang menampilkan data dinamis
- */
-const FeaturedCoursesSection = ({ courses }: { courses: Course[] }) => {
-  return (
-    <section id="courses-section" className="bg-white pb-20">
-      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-bold text-gray-800 mb-8">
-          The right tutors for you
-        </h2>
-        {courses && courses.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {courses.map((course) => (
-              <CourseCard key={course.id} course={course} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center p-12 bg-gray-100 rounded-lg">
-            <h3 className="text-xl font-semibold">No Courses Found</h3>
-            <p className="text-muted-foreground">
-              Try adjusting your search or category filters.
-            </p>
-          </div>
-        )}
-      </div>
-    </section>
-  );
-};
-
-/**
- * --- 6. How It Works ---
- * Di-update untuk menggunakan <Image>
- */
-const HowItWorks = () => {
-  const steps = [
-    {
-      step: 1,
-      title: '1. Find Your Tutor',
-      description: `Use our simple search to find tutors by the exact subjects you need, like 'Calculus' or 'Statistics', or browse by category`,
-      imageUrl: 'https://placehold.co/400x300/818cf8/ffffff?text=Step+1',
-    },
-    {
-      step: 2,
-      title: '2. Check Their Profile',
-      description: `View detailed profiles. See their faculty, expertise, hourly price, and preferred locations (Online, Perpusat, GSP, etc.).`,
-      imageUrl: 'https://placehold.co/400x300/a78bfa/ffffff?text=Step+2',
-    },
-    {
-      step: 3,
-      title: '3. Connect & Learn',
-      description: `Found the one? Just click the button to contact them directly on WhatsApp. Arrange your schedule and pay them directly`,
-      imageUrl: 'https://placehold.co/400x300/c084fc/ffffff?text=Step+3',
-    },
-  ];
+  // Buat link WhatsApp
+  const whatsappNumber = tutor?.whatsapp_number;
+  // Ubah nomor (misal: 0812...) menjadi format link internasional (62812...)
+  const formattedWaNumber = whatsappNumber?.replace(/^0/, '62');
+  const whatsappLink = whatsappNumber 
+    ? `https://wa.me/${formattedWaNumber}` 
+    : `/`; // Fallback jika tidak ada nomor WA
 
   return (
-    <section id="how-it-works" className="bg-white py-20">
-      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-        <h3 className="text-3xl font-bold text-gray-800">How It Works</h3>
-        <p className="text-gray-600 mt-2">Connecting with a tutor is simple and fast.</p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-          {steps.map((step) => (
-            <div key={step.step} className="group bg-gray-50 p-6 rounded-lg shadow-md transition-shadow duration-300">
-              <div className="relative w-full h-48 mb-4 overflow-hidden rounded-lg">
-                <Image
-                  src={step.imageUrl}
-                  alt={step.title}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <h4 className="text-xl font-semibold text-gray-800">{step.title}</h4>
-              <p className="text-gray-600 mt-2">{step.description}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
-
-/**
- * --- 7. Call To Action ---
- * Di-update untuk menggunakan <Link>
- */
-const CallToAction = () => {
-  return (
-    <section className="bg-gradient-to-r from-blue-900 to-blue-700 text-white py-20">
-      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-        <h2 className="text-4xl lg:text-5xl font-extrabold leading-tight">Teach Smarter, Earn Easier</h2>
-        <p className="mt-4 text-lg text-blue-100 max-w-2xl mx-auto">
-          Join our community of UGM peer tutors. Share your knowledge, help fellow students, and earn extra income on your own schedule.
-        </p>
-        <Button asChild size="lg" className="mt-8 bg-white text-blue-800 font-semibold py-3 px-8 rounded-full shadow-lg transition-all duration-300 border-2 border-transparent hover:bg-transparent hover:border-white hover:text-white">
-          <Link href="/signup">
-            Become a Tutor
-          </Link>
-        </Button>
-      </div>
-    </section>
-  );
-};
-
-
-/**
- * --- (C) KOMPONEN HALAMAN UTAMA (SERVER COMPONENT) ---
- */
-export default async function Homepage({
-  searchParams
-}: {
-  // 'searchParams' otomatis diisi oleh Next.js dari URL
-  searchParams?: { search?: string; category?: string };
-}) {
-  
-  // 1. Ambil data user (untuk header)
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  // 2. Ambil data courses (untuk halaman)
-  const searchQuery = searchParams?.search;
-  const categoryQuery = searchParams?.category;
-
-  // Bangun query secara dinamis
-  let query = supabase
-    .from('services')
-    .select(`
-      id,
-      subject_name,
-      description,
-      price,
-      cover_image_url,
-      tutors (
-        id,
-        full_name,
-        profile_picture_url
-      )
-    `);
-
-  if (searchQuery) {
-    query = query.ilike('subject_name', `%${searchQuery}%`);
-  }
-  if (categoryQuery) {
-    query = query.eq('category', categoryQuery);
-  }
-
-  // Eksekusi query
-  const { data: courses, error } = await query;
-
-  if (error) {
-    console.error("Error fetching courses for homepage:", error.message);
-    // (Sebaiknya tampilkan pesan error)
-  }
-
-  // 3. Render halaman
-  return (
-    <div className="font-sans antialiased bg-white">
-      <LandingHeader user={user} searchQuery={searchQuery} />
+    <div className="font-sans antialiased bg-blue-50 min-h-screen">
+      <PublicHeader />
       <main>
-        <CategorySearch activeCategory={categoryQuery} />
-        <FeaturedCoursesSection courses={courses as Course[] || []} />
-        <HowItWorks />
-        <CallToAction />
+        <div className="container mx-auto max-w-7xl p-4 sm:p-8">
+          
+          {/* Tombol Kembali ke Profil Tutor (jika ada) */}
+          <Link 
+            href={`/`} // TODO: Ganti ke halaman profil tutor jika ada, misal: /tutor/${course.tutor_id}
+            className="flex items-center text-gray-600 hover:text-blue-700 font-medium mb-8 transition-colors print:hidden"
+          >
+            <ChevronLeft className="w-5 h-5 mr-1" />
+            Back to Explore
+          </Link>
+
+          {/* Layout Detail Course */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            {/* Kolom Kiri: Gambar dan Deskripsi */}
+            <div className="lg:col-span-2 space-y-8">
+              <Card className="p-0 overflow-hidden">
+                <div className="relative w-full h-64 sm:h-80 max-h-[400px]">
+                  <Image 
+                    src={course.cover_image_url || '/abstract.jpg'} //
+                    alt={course.subject_name} 
+                    fill
+                    className="object-cover"
+                    priority // Prioritaskan load gambar utama
+                  />
+                </div>
+              </Card>
+
+              <Card className="p-6 sm:p-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                  <BookOpen className="w-6 h-6 mr-2 text-blue-700" />
+                  About This Course
+                </h2>
+                <div className="space-y-4 text-gray-700 leading-relaxed">
+                  {/* Tampilkan deskripsi dari database */}
+                  <p>{course.description || "No description provided."}</p>
+                </div>
+              </Card>
+            </div>
+            
+            {/* Kolom Kanan: Kartu Pemesanan */}
+            <div className="lg:col-span-1">
+              <Card className="p-6 sticky top-8 shadow-lg">
+                <div className="pb-4 mb-4 border-b border-gray-200">
+                  <h2 className="text-xl font-bold text-blue-900">
+                    {tutor ? `Tutoring by ${tutor.full_name}` : course.subject_name}
+                  </h2>
+                  <p className="text-sm text-gray-500">{tutor?.major || 'Universitas Gadjah Mada'}</p>
+                </div>
+                
+                <h1 className="text-3xl font-bold text-gray-900">{course.subject_name}</h1>
+                
+                <div className="my-6">
+                  <span className="text-4xl font-bold text-blue-700">{priceFormat}</span>
+                  <span className="text-gray-500 font-medium ml-1">/ jam</span>
+                </div>
+                
+                <Button asChild size="lg" className="w-full h-auto py-4 text-base font-semibold">
+                   <Link href={whatsappLink} target="_blank" rel="noopener noreferrer">
+                     <MessageCircle className="w-5 h-5 mr-2" />
+                     Get in Touch (WhatsApp)
+                   </Link>
+                </Button>
+                
+                <ul className="space-y-4 mt-8 text-gray-700 bg-blue-50/50 p-5 rounded-xl border">
+                  <li className="flex items-start">
+                    <MapPin className="w-5 h-5 text-blue-600 mt-0.5" />
+                    <div className="ml-3">
+                        <p className="text-xs text-gray-500 uppercase font-semibold">LOCATION</p>
+                        <p className="font-medium">{course.location}</p>
+                    </div>
+                  </li>
+                  {/* Anda bisa tambahkan info lain di sini jika ada */}
+                </ul>
+
+              </Card>
+            </div>
+          </div>
+        </div>
       </main>
-      <LandingFooter />
+      <PublicFooter />
     </div>
   );
-}
+};
